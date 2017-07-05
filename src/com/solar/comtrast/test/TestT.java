@@ -15,6 +15,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.solar.file.utils.CopyFileUtil;
+import com.solar.file.utils.Zip;
+
  
 
 /**
@@ -187,12 +190,51 @@ public class TestT extends HttpServlet {
 	}
 
 	/**
-	 * 打印结果
+	 * 打印结果 + 复制文件
 	 */
 	public static void printFile(List<FileMd5> fileMd5s) {
+		CopyFileUtil copyUtil = new CopyFileUtil();
 		for (FileMd5 fileMd5 : fileMd5s) {
 			System.out.println(fileMd5.getFile().getAbsolutePath() + " " + fileMd5.getMd5());
+			
+			String filePath = fileMd5.getFile().getAbsolutePath();
+			String startTag = "D:\\海图项目\\zip2";
+			int index = filePath.indexOf(startTag);
+			if(index != -1){
+				index = startTag.length() + 1;
+				filePath = filePath.substring(index, filePath.length());
+			}
+			copyUtil.copyFile(fileMd5.getFile().getAbsolutePath(), "D:\\海图项目\\zip3"+File.separator + filePath, true);
+			
 		}
+		
+		
+		//遍历目录获取文件小
+		File preZip = new File("D:\\海图项目\\zip3");
+		long size = 0;
+		if(preZip.isDirectory()){
+			File[] fileList = preZip.listFiles();
+			for(File file:fileList)
+				size += file.length(); 
+		}
+		
+		
+		//压缩文件目录
+		Zip zip = new Zip();
+		zip.zip("D:\\海图项目\\zip3", "D:\\海图项目\\zip4\\"+size+".zip");
+		//File file = new File("D:\\海图项目\\zip4\\zipfil1e.zip");
+	//	System.out.println(file.length());
+		try {
+			//file.renameTo(new File("D:\\海图项目\\zip4\\"+String.valueOf(file.length())+ ".zip"));
+			
+			File zipFile =new File("D:\\海图项目\\zip4");
+			System.out.println(zipFile.getName() + "," + zipFile.length());
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.println(e);
+		}
+		
+		
 	}
 
 	/**
