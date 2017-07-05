@@ -235,6 +235,28 @@ public class TestT extends HttpServlet {
 		}
 		
 		
+		try {
+			Thread.sleep(5000);
+			System.out.println(123);
+			
+			File preZip5 = new File("D:\\海图项目\\zip5");
+			long size5 = 0;
+			if(preZip5.isDirectory()){
+				File[] fileList = preZip5.listFiles();
+				for(File file:fileList)
+					size5 += file.length(); 
+			}
+			
+			boolean resultState = size == size5 ;
+			if(resultState)
+				System.out.println("解压数据成功");
+			else
+				System.out.println("解压数据损失");
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 	/**
