@@ -19,23 +19,22 @@ import java.util.zip.ZipInputStream;
 
 import javax.servlet.http.HttpServlet;
 
- 
+import com.solar.file.utils.FileSize;
 
 public class UnZip extends HttpServlet implements Runnable {
-	
-	private static String updatePath = "D:/海图项目/zip4";
-	private  static String sourceUpdatePath = "";
-	
 
-	public static void monitor(){ 
+	private static String updatePath = "D:/海图项目/zip4";
+	private static String sourceUpdatePath = "";
+
+	static FileSize fileSize = new FileSize();
+
+	public static void monitor() {
 
 		// 输出文件路径
-		String outPath = "D:/海图项目/zip5"; 
+		String outPath = "D:/海图项目/zip5";
 		String filePath = ("D:\\海图项目\\zip4");
 
 		try {
-
-		 
 
 			// 获取文件系统的WatchService对象
 			WatchService watchService = FileSystems.getDefault().newWatchService();
@@ -70,7 +69,7 @@ public class UnZip extends HttpServlet implements Runnable {
 						String zipPath = traverseFolder2(filePath);
 						Thread.sleep(3000);
 						unzip(zipPath, outPath);
-						//updateFile("","");
+						// updateFile("","");
 					}
 					// System.out.println(event.kind() +"," + ((
 					// event.kind().toString()).equals("ENTRY_CREATE")));
@@ -89,54 +88,90 @@ public class UnZip extends HttpServlet implements Runnable {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static String traverseFolder2(String path) {
 
-        File file = new File(path);
-        if (file.exists()) {
-            File[] files = file.listFiles();
-            if (files.length == 0) {
-                System.out.println("文件夹是空的!");
-                return "";
-            } else {
-                for (File file2 : files) {
-                    if (file2.isDirectory()) {
-                        System.out.println("文件夹:" + file2.getAbsolutePath());
-                        return file2.getAbsolutePath();
-                      //  traverseFolder2(file2.getAbsolutePath());
-                    } else {
-                        System.out.println("文件:" + file2.getAbsolutePath());
-                        return file2.getAbsolutePath();
-                    }
-                }
-            }
-        } else {
-            System.out.println("文件不存在!");
-            return "";
-        }
+		File file = new File(path);
+		if (file.exists()) {
+			File[] files = file.listFiles();
+			if (files.length == 0) {
+				System.out.println("文件夹是空的!");
+				return "";
+			} else {
+				for (File file2 : files) {
+					if (file2.isDirectory()) {
+						System.out.println("文件夹:" + file2.getAbsolutePath());
+						return file2.getAbsolutePath();
+						// traverseFolder2(file2.getAbsolutePath());
+					} else {
+						System.out.println("文件:" + file2.getAbsolutePath());
+						return file2.getAbsolutePath();
+					}
+				}
+			}
+		} else {
+			System.out.println("文件不存在!");
+			return "";
+		}
 		return "";
-    }
+	}
 
-	public static void unzip(String sourcePath, String outPath) {
+	public static boolean unzip(String sourcePath, String outPath) {
+		boolean stateResult = false;
+		
+		long zipFileSize = 0;
 		try {
-			// 文件输入流
-			FileInputStream fin = new FileInputStream(sourcePath);
+			
+			
 
+			// 文件输入流
+			FileInputStream fin = null;
+
+			
+			boolean runState = false;
+			while (!runState) {
+				
+				
+				try { 
+					fin = new FileInputStream(sourcePath);
+				File fileJudge = new File(sourcePath);
+				String name = "";
+				name = fileJudge.getName(); 
+				long zipSize = Long.valueOf(name.substring(0, name.indexOf("_")));
+				zipFileSize = Long.valueOf(name.substring(name.indexOf("_") + 1, name.indexOf(".")));
+				long itSize = fileJudge.length();
+				System.out.println(itSize + ",,," + zipSize);
+				if (itSize == zipSize)
+					break;
+
+				System.out.println("................");
+				 
+				runState = true;
+				} catch (Exception e) {
+					// TODO: handle exception
+					System.out.println(e);
+					runState = false;
+					Thread.sleep(4000);
+				}
+			}
+			
+			
 			// 需要维护所读取数据校验和的输入流。校验和可用于验证输入数据的完整性
 			CheckedInputStream checkIn = new CheckedInputStream(fin, new CRC32());
-			//指定编码 否则会出现中文文件解压错误
+			// 指定编码 否则会出现中文文件解压错误
 			Charset gbk = Charset.forName("GBK");
-			// zip格式的输入流 
-			ZipInputStream zin = new ZipInputStream(checkIn,gbk);
+			// zip格式的输入流
+			ZipInputStream zin = new ZipInputStream(checkIn, gbk);
 
 			// 遍历压缩文件中的所有压缩条目
 			ZipEntry zinEntry;
+
 			while ((zinEntry = zin.getNextEntry()) != null) {
 				System.out.println(zinEntry);
 				File targetFile = new File(outPath + File.separator + zinEntry.getName());
-				
+
 				System.out.println("..." + targetFile + "   " + targetFile.getParentFile());
-				
+
 				sourceUpdatePath = targetFile.toString();
 				if (!targetFile.getParentFile().exists()) {
 					System.out.println("..." + targetFile + "   " + targetFile.getParentFile());
@@ -154,70 +189,82 @@ public class UnZip extends HttpServlet implements Runnable {
 					fout.close();
 				}
 			}
-//			Thread.sleep(3000);
-//			CopyFileUtil.copyDirectory(sourceUpdatePath,updatePath, true);
-			
-			
+
 			zin.close();
 			fin.close();
 			System.out.println(checkIn.getChecksum().getValue());
 			checkIn.close();
-			
+
 			Thread.sleep(4000);
 			File file = new File(sourcePath);
-			try {
-				if(file.exists())
-					file.delete();
-			} catch (Exception e) {
-				// TODO: handle exception
-				System.out.println(e);
+
+			if (file.exists())
+				file.delete();
+			File afterUnZip5 = new File("D:\\海图项目\\zip5");
+
+			long afterUnZip5Size = fileSize.getFileSize(afterUnZip5);
+			long preUnZip5Size = zipFileSize;
+
+			boolean resultState = preUnZip5Size == afterUnZip5Size;
+			if (resultState){
+				System.out.println("解压数据成功");
+				stateResult = true;
 			}
+			else{
+				System.out.println("解压数据损失");
+				stateResult = false;
+			}
+
 		} catch (Exception e) {
-			System.out.println(e);
 			// TODO: handle exception
+			stateResult = false;
+			System.out.println(e);
+		}
+		return stateResult;
+		// System.exit(0);
+	}
+
+	public static void updateFile(String resourcePath, String desPath) {
+		File file = new File(resourcePath);
+		if (file.exists()) {
+			File[] files = file.listFiles();
+			if (files.length == 0) {
+				System.out.println("文件夹是空的!");
+
+			} else {
+				for (File file2 : files) {
+					if (file2.isDirectory()) {
+						System.out.println("文件夹:" + file2.getAbsolutePath());
+
+						// traverseFolder2(file2.getAbsolutePath());
+					} else {
+						System.out.println("文件:" + file2.getAbsolutePath());
+
+					}
+				}
+			}
+		} else {
+			System.out.println("文件不存在!");
+
 		}
 	}
 
-	public static void updateFile(String resourcePath,String desPath){
-		 File file = new File(resourcePath);
-	        if (file.exists()) {
-	            File[] files = file.listFiles();
-	            if (files.length == 0) {
-	                System.out.println("文件夹是空的!");
-	                
-	            } else {
-	                for (File file2 : files) {
-	                    if (file2.isDirectory()) {
-	                        System.out.println("文件夹:" + file2.getAbsolutePath());
-	                       
-	                      //  traverseFolder2(file2.getAbsolutePath());
-	                    } else {
-	                        System.out.println("文件:" + file2.getAbsolutePath());
-	                        
-	                    }
-	                }
-	            }
-	        } else {
-	            System.out.println("文件不存在!");
-	             
-	        }
-	}
-	
-	public void init(){
+	public void init() {
 		UnZip unzip = new UnZip();
-		Thread thread =new Thread(unzip);
+		Thread thread = new Thread(unzip);
 		thread.start();
 	}
-	
+
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
 		System.out.println(12223);
 		monitor();
-		
+
 	}
+
 	public static void main(String[] args) {
 		monitor();
 	}
-	
+
 }

@@ -42,8 +42,10 @@ public class Zip extends HttpServlet {
     }
     
     
-    public static void zip(String sourcePath, String outPutZipPath) {
+    public static boolean zip(String sourcePath, String outPutZipPath) {
+    	boolean stateResult = false;
 		try {
+			
 			// 文件输出流
 			FileOutputStream fout = new FileOutputStream(outPutZipPath);
 
@@ -57,7 +59,7 @@ public class Zip extends HttpServlet {
 
 			// 压缩条目
 			String zipEntryName = "";
-			zipDire(zipOput, sourceFile, zipEntryName);
+			stateResult = zipDire(zipOput, sourceFile, zipEntryName);
 			zipOput.closeEntry();
 			zipOput.close();
 			fout.close();
@@ -66,24 +68,34 @@ public class Zip extends HttpServlet {
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
+		return stateResult;
 	}
 
 	// 压缩目录
-	public static void zipDire(ZipOutputStream zipOput, File sourceFile, String zipEntryName)
+	public static boolean zipDire(ZipOutputStream zipOput, File sourceFile, String zipEntryName)
 			throws IOException, FileNotFoundException {
-		for (File file : sourceFile.listFiles()) {
-			// String name = sourcePath + "/" + "下载必看/" + file.getName() ;
-			if(!zipEntryName.equals(""))
-				zipEntryName = zipEntryName + "/";
-			if (file.isFile())
-				ZipFile(file.toString(), zipOput, zipEntryName + file.getName());
-			else {
-				if (file.listFiles().length > 0)
-					zipDire(zipOput, file, zipEntryName + "/" + file.getName());
-				else
-					zipOput.putNextEntry(new ZipEntry(zipEntryName + "/" + file.getName() + "/"));
+		boolean stateResult = false;
+		try {
+			for (File file : sourceFile.listFiles()) {
+				// String name = sourcePath + "/" + "下载必看/" + file.getName() ;
+				if(!zipEntryName.equals(""))
+					zipEntryName = zipEntryName + "/";
+				if (file.isFile())
+					ZipFile(file.toString(), zipOput, zipEntryName + file.getName());
+				else {
+					if (file.listFiles().length > 0)
+						zipDire(zipOput, file, zipEntryName + "/" + file.getName());
+					else
+						zipOput.putNextEntry(new ZipEntry(zipEntryName + "/" + file.getName() + "/"));
+				}
 			}
+			stateResult = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			stateResult = false;
 		}
+		return stateResult;
+		
 
 	}
 
