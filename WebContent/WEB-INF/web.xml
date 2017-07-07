@@ -9,14 +9,13 @@
     <welcome-file>default.htm</welcome-file>
     <welcome-file>default.jsp</welcome-file>
   </welcome-file-list>
-  
   <servlet>
-  	<servlet-name>listener</servlet-name>
-  	<servlet-class>com.solar.servlet.UnZip</servlet-class>
-  	<load-on-startup>5</load-on-startup>
+    <servlet-name>listener</servlet-name>
+    <servlet-class>com.solar.servlet.UnZip</servlet-class>
+    <load-on-startup>5</load-on-startup>
   </servlet>
   <servlet-mapping>
- 	 <servlet-name>listener</servlet-name> 
- 	 <url-pattern>/listener</url-pattern>
+    <servlet-name>listener</servlet-name>
+    <url-pattern>/listener</url-pattern>
   </servlet-mapping>
 </web-app>
