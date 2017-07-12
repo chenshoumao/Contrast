@@ -18,7 +18,7 @@ public class Version implements Comparable{
 	public String getMain_Version() {
 		return main_Version;
 	}
-	//  1212
+	//  1212ff
 	public Version(String str){
 		int firstIndex = str.indexOf("_");
 		int secondIndex = str.indexOf("_", firstIndex+1);
