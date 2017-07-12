@@ -1,4 +1,4 @@
-package com.solar.servlet;
+package com.solar.file.utils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -18,7 +18,7 @@ public class Version implements Comparable{
 	public String getMain_Version() {
 		return main_Version;
 	}
-	//
+	//  1212
 	public Version(String str){
 		int firstIndex = str.indexOf("_");
 		int secondIndex = str.indexOf("_", firstIndex+1);
