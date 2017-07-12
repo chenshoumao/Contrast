@@ -51,41 +51,44 @@ public class Listener extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 	//	response.getWriter().append("Served at1122: ").append(request.getContextPath());
-		
-		 //System.exit(0);
 		PrintWriter out = response.getWriter();
-		out.println(12);
-		try {
-            Process process = Runtime.getRuntime().exec("taskList");
-            Scanner in = new Scanner(process.getInputStream());
-            int count = 0;
-            while (in.hasNextLine()) {
-                count++;
-                String temp = in.nextLine(); 
-                if (temp.contains("Tomcat7")) {
-                    String[] t = temp.split(" ");
-                    // 判断该进程所占内存是否大于20M
-                    if (Integer.parseInt(t[t.length - 2].replace(",", "")) > 20000) {
-                        temp = temp.replaceAll(" ", "");
-                        // 获得pid
-                        // String pid = temp.substring(9, temp.indexOf("Console"));
-                        String pid = "2972";
-                        Runtime.getRuntime().exec("D:\\海图项目\\tomcat7\\bin\\startup.bat");
-                        Thread.sleep(12000);
-                        Runtime.getRuntime().exec("net start Tomcat7");
-                        out.println(112322);
-                        System.out.println(pid);
-
-                        // dos下开cmd窗口 ntsd -c q -p PID
-                        // Runtime.getRuntime().exec("ntsd -c q -p 1528");
-                    }
-                }
-                // System.out.println(count + ":" + temp);
-            }
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } 
+		message("http://localhost:8080/Contrast");
+		boolean str =  reloadWebApp("Contrast");
+		out.println(str);
+		 //System.exit(0);
+//		PrintWriter out = response.getWriter();
+//		out.println(12);
+//		try {
+//            Process process = Runtime.getRuntime().exec("taskList");
+//            Scanner in = new Scanner(process.getInputStream());
+//            int count = 0;
+//            while (in.hasNextLine()) {
+//                count++;
+//                String temp = in.nextLine(); 
+//                if (temp.contains("Tomcat7")) {
+//                    String[] t = temp.split(" ");
+//                    // 判断该进程所占内存是否大于20M
+//                    if (Integer.parseInt(t[t.length - 2].replace(",", "")) > 20000) {
+//                        temp = temp.replaceAll(" ", "");
+//                        // 获得pid
+//                        // String pid = temp.substring(9, temp.indexOf("Console"));
+//                        String pid = "2972";
+//                        Runtime.getRuntime().exec("D:\\海图项目\\tomcat7\\bin\\startup.bat");
+//                        Thread.sleep(12000);
+//                        Runtime.getRuntime().exec("net start Tomcat7");
+//                        out.println(112322);
+//                        System.out.println(pid);
+//
+//                        // dos下开cmd窗口 ntsd -c q -p PID
+//                        // Runtime.getRuntime().exec("ntsd -c q -p 1528");
+//                    }
+//                }
+//                // System.out.println(count + ":" + temp);
+//            }
+//        } catch (Exception e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        } 
 		//stopWebApp("Contrast"); 
 	}
 	
@@ -213,8 +216,40 @@ public class Listener extends HttpServlet {
 		// TODO Auto-generated method stub
 		doGet(request, response);
 	}
+	
+	
+	public static void main(String[] args) {
+		Runtime rt = Runtime.getRuntime(); //Runtime.getRuntime()返回当前应用程序的Runtime对象
+        Process ps = null;  //Process可以控制该子进程的执行或获取该子进程的信息。
+        try {
+         //   ps = rt.exec("cmd /c start D:\\海图项目\\tomcat7\\bin\\startup.bat");   //该对象的exec()方法指示Java虚拟机创建一个子进程执行指定的可执行程序，并返回与该子进程对应的Process对象实例。
+        	ps = rt.exec("cmd /c net start Tomcat7"); 
+            ps.waitFor();  //等待子进程完成再往下执行。
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        int i = ps.exitValue();  //接收执行完毕的返回值
+        if (i == 0) {
+            System.out.println("执行完成.");
+        } else {
+            System.out.println("执行失败.");
+        }
+
+        ps.destroy();  //销毁子进程
+        ps = null;   
+	}
 
 }
+
+/**
+ * @ping 127.0.0.1 -n 6 >nul 
+net start Tomcat7
+pause
+ */
 
 
 
