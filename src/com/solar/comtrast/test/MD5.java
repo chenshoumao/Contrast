@@ -6,7 +6,7 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 
 public class MD5 {
-	// 计算文件的 MD5 值
+	    // 计算文件的 MD5 值
 		public static String getFileMD5(File file) {
 		    if (!file.isFile()) {
 		        return null;
