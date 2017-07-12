@@ -29,17 +29,13 @@ public class B extends HttpServlet {
                Process process = Runtime.getRuntime().exec("taskList");
                Scanner in = new Scanner(process.getInputStream());
                int count = 0;
-<<<<<<< HEAD
+
                Runtime.getRuntime().exec("cmd /c net start Tomcat7");
            } catch (Exception e) {
                // TODO Auto-generated catch block
         	   System.out.println(e);
-=======
-               Runtime.getRuntime().exec("net start Tomcat7");
-           } catch (Exception e) {
-               // TODO Auto-generated catch block
->>>>>>> master2
-               e.printStackTrace();
+
+              
            }
 	}
 	/**
