@@ -79,7 +79,7 @@ public class Version implements Comparable{
 		Version version6 = new Version("1.0.2_release_20170204");
 		Version version7 = new Version("1.0.2.1.1_release_20170203");
 		List<Version> list = new ArrayList<Version>();
-		list.add(version4);
+		list.add(version4); 
 		list.add(version3);
 		list.add(version1);
 		list.add(version2);
