@@ -1,84 +1,29 @@
-package com.solar.file.utils;
+package com.solar.comtrast.test;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
- 
-import com.solar.comtrast.test.MD5;
-import com.sun.javafx.geom.transform.GeneralTransform3D;
+import com.solar.file.utils.CopyFileUtil;
+import com.solar.file.utils.FileMd5;
+import com.solar.file.utils.FileSize;
+import com.solar.file.utils.Version;
+import com.solar.file.utils.Zip;
 
-import sun.security.x509.IssuingDistributionPointExtension;
-
-public class Version implements Comparable{
-	private String main_Version;
-	private final String base_Version = "release";
-	private Date date_Version ;
-	public String getMain_Version() {
-		return main_Version;
-	}
-	//  1212ff121212121
-	public Version(String str){
-		int firstIndex = str.indexOf("_");
-		int secondIndex = str.indexOf("_", firstIndex+1);
-		this.main_Version = str.substring(0,firstIndex);
-		//this.base_Version = str.getBase_Version();
-		SimpleDateFormat dateFormet = new SimpleDateFormat("yyyyMMdd");
-		try {
-			this.date_Version = dateFormet.parse(str.substring(secondIndex+1,str.length()));
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+public class Compare{
 	
-	public void setMain_Version(String main_Version) {
-		this.main_Version = main_Version;
-	}
-	public Date getDate_Version() {
-		return date_Version;
-	}
-	public void setDate_Version(Date date_Version) {
-		this.date_Version = date_Version;
-	}
-	public String getBase_Version() {
-		return base_Version;
-	}
-	@Override
-	public int compareTo(Object arg0) {
-		// TODO Auto-generated method stub
-		Version version = (Version)arg0;
-		
-		int date_result = version.getDate_Version().compareTo(this.getDate_Version());
-		if(date_result == 0){
-			int length = Math.min(this.getMain_Version().length(), version.getMain_Version().length());
-			String mian_Version_1 = this.getMain_Version().substring(0, length);
-			String main_Version_2 = version.getMain_Version().substring(0, length);
-			int base_result = main_Version_2.compareTo(mian_Version_1);
-			 
-			return base_result == 0? version.getMain_Version().length() > length ? 1:-1:base_result;
-		}
-		else
-			return date_result;
-	}
+	private static String sourcePath = "";
 	
-	public String toString(){
-		SimpleDateFormat dateFormet = new SimpleDateFormat("yyyyMMdd");
-		return this.getMain_Version() + "_" + this.getBase_Version() + "_" + dateFormet.format(this.getDate_Version());
-	}
-	
-	public static void main(String[] args) throws ParseException {
+	public static void main(String[] args){
 		List<Version> list = new ArrayList<Version>();
-		String path = "D:\\海图项目\\repositories";
-		File file = new File(path);
+		String repositoriesUrl = "D:\\海图项目\\repositories";
+	
+		File file = new File(repositoriesUrl);
 		if(file.exists()){
 			File[] fileList = file.listFiles();
 			for(File fileIt:fileList){
@@ -102,23 +47,25 @@ public class Version implements Comparable{
 		System.out.println(list.get(0).toString());
 		
  
-	 
-		String path2 = "D:\\海图项目\\zip2";
+		//最新的版本
+		sourcePath = "D:\\海图项目\\repositories\\"+list.get(0).toString();
 		// 获取path1,path2的所有文件夹路径,文件的md5值put map
 		Map<String, FileMd5> path1Map;
 		try {
+			String path = "D:\\海图项目\\repositories\\1.0.2.2_release_20170203";
+			File sff = new File(path);
+			String sourcePathMD5 = MD5.getFileMD5(new File(path));
+			String destPathMD5 = MD5.getFileMD5(new File(sourcePath));
+			
+			System.out.println(sourcePathMD5 + "," + destPathMD5);
+			
+			
 			path1Map = listDir(path);
 
-			Map<String, FileMd5> path2Map = listDir(path2);
-			// compare path1 map to path2 map 得到path2没有的文件夹和文件及其md5值不同的文件
-			// List<FileMd5> compareFile1 = compareFile(path1Map, path2Map);
-			// compare path2 map to path1 map 得到path1没有的文件夹和文件及其md5值不同的文件
+			Map<String, FileMd5> path2Map = listDir(sourcePath);
+		 
 			List<FileMd5> compareFile = compareFile(path2Map, path1Map);
-			// 过滤结果
-			// List<FileMd5> equalsFile = filterFile(compareFile1,
-			// compareFile2);
-			// 输出最终结果
-			// printResult(equalsFile, compareFile1, compareFile2);
+			 
 			printResult(compareFile);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -158,34 +105,26 @@ public class Version implements Comparable{
 			System.out.println(fileMd5.getFile().getAbsolutePath() + " " + fileMd5.getMd5());
 
 			String filePath = fileMd5.getFile().getAbsolutePath();
-			String startTag = "D:\\海图项目\\zip2";
+			String startTag = sourcePath;
 			int index = filePath.indexOf(startTag);
 			if (index != -1) {
 				index = startTag.length() + 1;
 				filePath = filePath.substring(index, filePath.length());
 			}
 			stateCopyResult = copyUtil.copyFile(fileMd5.getFile().getAbsolutePath(),
-					"D:\\海图项目\\zip3" + File.separator + filePath, true);
+					"D:\\海图项目\\repositories\\Temp" + File.separator + filePath, true);
 		}
 
-		if (stateCopyResult) {
-			// 遍历目录获取文件小
-			File preZip = new File("D:\\海图项目\\zip3");
-			FileSize fileSize = new FileSize();
-			long size = fileSize.getFileSize(preZip);
-			 
+//		if (stateCopyResult) {
+//			// 遍历目录获取文件小
+//			File preZip = new File("D:\\海图项目\\zip3");
+//			FileSize fileSize = new FileSize();
+//			long size = fileSize.getFileSize(preZip); 
+//			// 压缩文件目录
+//			boolean stateResult = zipFile(size); 
+//		}
 
-			// 压缩文件目录
-			boolean stateResult = zipFile(size);
-			
-			
-			 
-
-		}
-
-	}
-	
-	
+	} 
 	
 	/**
 	 * 打印结果
